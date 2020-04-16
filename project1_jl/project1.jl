@@ -10,9 +10,21 @@
     (i.e. ones that ship with the julia language) as well as Statistics
     (since we use it in the backend already anyway)
 =#
+#import Pkg
+#Pkg.add("Plots")
+
+#Pkg.add("PyPlot")
+#Pkg.add("GR")
+
+#didn't end up adding yet
+#Pkg.add("UnicodePlots")
+#Pkg.add("PlotlyJS")
+
+using Plots
+gr()
 
 # Example:
-# using LinearAlgebra
+using LinearAlgebra
 
 #=
     If you're going to include files, please do so up here. Note that they
@@ -41,6 +53,27 @@ Returns:
     - The location of the minimum
 """
 function optimize(f, g, x0, n, prob)
-    x_best = x0
-    return x_best
+#     Basing first attempt on Nesterov's momentum gradient descent as described in Alg. 5.4 in the course textbook
+ 	v = vec(zeros(length(x0),1)); #set momentum to zero
+	i = 1;   
+ 	x_history = x0; #x is 
+    alpha = 0.9; #learning rate
+    beta = 0.8;#momentum decay, 0 = pure gradient method
+    while count(f, g) < n
+        xi_vec = vec(x_history[:,i]);
+        tmp_vec = xi_vec + beta*v;
+        v = beta*v - (alpha^i)*g(tmp_vec); #adjusted Nestov's alg. to incorporate decreasing learning rate
+        normThresh = 1;
+        if norm(v) > normThresh
+            v = v / norm(v)
+        end
+        xpi_vec = xi_vec + v;
+        x_history = hcat(x_history, xpi_vec);
+#         println(typeof(x_history))
+        i = i + 1;
+    end
+        #end loop
+#     println(x_history)
+#     println(v)
+    return vec(x_history[:,i-1])
 end
